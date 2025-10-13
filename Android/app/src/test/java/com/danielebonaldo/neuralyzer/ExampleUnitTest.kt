@@ -1,4 +1,4 @@
-package com.danielebonaldo.neuralizer
+package com.danielebonaldo.neuralyzer
 
 import org.junit.Test
 

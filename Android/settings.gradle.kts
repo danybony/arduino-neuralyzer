@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "neuralizer"
+rootProject.name = "neuralyzer"
 include(":app")

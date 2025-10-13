@@ -1,4 +1,4 @@
-package com.danielebonaldo.neuralizer.ui.theme
+package com.danielebonaldo.neuralyzer.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
