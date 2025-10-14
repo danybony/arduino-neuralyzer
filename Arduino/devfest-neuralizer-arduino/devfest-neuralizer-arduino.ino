@@ -140,18 +140,19 @@ void loop() {
 
 // --- Function to update Pixels according to brightness ---
 void showPixels(uint8_t rgb[3], uint8_t level) {
-  int ledsOn = 0;
+  int ledsOnStart = -1;
+  int ledsOnEnd = -1;
   switch(level) {
-    case 0: ledsOn = 0; break;
-    case 1: ledsOn = 2; break;
-    case 2: ledsOn = 5; break;
-    case 3: ledsOn = 8; break;
-    default: ledsOn = 8; break;
+    case 0: ledsOnStart = -1; ledsOnEnd = -1; break;
+    case 1: ledsOnStart = 3; ledsOnEnd = 4; break;
+    case 2: ledsOnStart = 2; ledsOnEnd = 5;  break;
+    case 3: ledsOnStart = 0; ledsOnEnd = 7; break;
+    default: ledsOnStart = 0; ledsOnEnd = 7; break;
   }
 
   // Aggiorna tutti i LED
   for(int i = 0; i < 8; i++) {
-    if(i < ledsOn) {
+    if(i >= ledsOnStart && i <= ledsOnEnd) {
       pixels.set(i, ModulinoColor(rgb[0], rgb[1], rgb[2]), 30); // LED ON 
     } else {
       pixels.set(i, ModulinoColor(0, 0, 0), 0);                 // LED OFF
