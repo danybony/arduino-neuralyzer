@@ -19,10 +19,9 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
 
     private val bleClient by lazy { NeuralyzerBleClient(application) }
 
-    //region MutableStateFlow
     val bleDeviceStatus = bleClient.deviceConnectionStatus
     val rgbValue = MutableStateFlow(TimedValue(Color(0, 0, 0), Instant.now()))
-    //endregion
+    val intensity = MutableStateFlow(TimedValue(1, Instant.now()))
 
     init {
         viewModelScope.launch {
@@ -36,7 +35,8 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
         }
         viewModelScope.launch {
             bleClient.ledIntensity.collect {
-                Log.d(TAG, "LED Effect: $it")
+                Log.i(TAG, "LED Effect: $it")
+                intensity.value = TimedValue(it)
             }
         }
 

@@ -25,9 +25,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.danielebonaldo.neuralyzer.R
 import com.danielebonaldo.neuralyzer.scanner.ScanStatus
 
 @SuppressLint("MissingPermission")
@@ -51,10 +53,10 @@ fun ScanScreen(
                 .padding(all = 16.dp),
         ) {
             Button(modifier = Modifier.fillMaxWidth(), onClick = onStartScan) {
-                Text(text = "Start Scan")
+                Text(text = stringResource(R.string.start_scan))
             }
             Button(modifier = Modifier.fillMaxWidth(), onClick = onStopScan) {
-                Text(text = "Stop Scan!")
+                Text(text = stringResource(R.string.stop_scan))
             }
 
             var counter = 1.0f
@@ -121,7 +123,7 @@ fun DevicePickerItem(macAddress: String, rssi: Int, name: String, onSelect: (Str
                     .fillMaxWidth()
                     .padding(8.dp)
             )
-            Text(text = "RSSI: $rssi", modifier = Modifier.padding(start = 8.dp))
+            Text(text = stringResource(R.string.rssi_format,rssi), modifier = Modifier.padding(start = 8.dp))
         }
     }
 }

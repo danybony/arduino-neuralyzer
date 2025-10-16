@@ -10,7 +10,16 @@ data class DeviceUiState(
 )
 
 enum class Intensity {
-    LOW, MEDIUM, HIGH
+    LOW, MEDIUM, HIGH;
+
+    companion object {
+        fun fromInt(value: Int) = when (value) {
+            1 -> LOW
+            2 -> MEDIUM
+            3 -> HIGH
+            else -> LOW
+        }
+    }
 }
 
 

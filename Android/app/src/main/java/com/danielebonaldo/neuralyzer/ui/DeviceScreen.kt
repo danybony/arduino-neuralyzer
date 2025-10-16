@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.danielebonaldo.neuralyzer.R
 import com.danielebonaldo.neuralyzer.client.NeuralyzerBleClient
 import com.danielebonaldo.neuralyzer.ui.composables.ColorPicker
 import com.danielebonaldo.neuralyzer.ui.composables.IntensitySlider
@@ -33,7 +35,11 @@ fun DeviceScreen(
     onIntensitySelected: (Int) -> Unit,
     onColorSelected: (Color) -> Unit,
 ) {
-    Column(modifier.fillMaxSize().padding(32.dp)) {
+    Column(
+        modifier
+            .fillMaxSize()
+            .padding(32.dp)
+    ) {
         ConnectionRow(
             deviceConnectionStatus = deviceStatus.deviceConnectionStatus,
             onConnect = onConnect,
@@ -66,15 +72,26 @@ private fun ConnectionRow(
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
     ) {
-        Button(onClick = onConnect) {
-            Text("Connect")
+        when (deviceConnectionStatus) {
+            is NeuralyzerBleClient.SDeviceStatus.DISCONNECTED,
+            is NeuralyzerBleClient.SDeviceStatus.UNKNOWN -> Button(
+                onClick = onConnect,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.connect))
+            }
+
+            else -> Button(
+                onClick = onDisconnect,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.disconnect))
+            }
         }
-        Button(onClick = onDisconnect, modifier = Modifier.padding(start = 10.dp)) {
-            Text("Disconnect")
-        }
+
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(0.5f)
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,7 +100,7 @@ private fun ConnectionRow(
                 modifier = Modifier
                     .padding(start = 20.dp, end = 20.dp)
                     .background(deviceConnectionStatus.statusColor(), shape = CircleShape)
-                    .requiredSize(15.dp)
+                    .requiredSize(48.dp, 24.dp)
             )
         }
     }

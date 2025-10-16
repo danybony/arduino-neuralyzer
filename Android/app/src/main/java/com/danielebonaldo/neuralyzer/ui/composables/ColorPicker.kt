@@ -3,7 +3,9 @@ package com.danielebonaldo.neuralyzer.ui.composables
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,7 +22,9 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.danielebonaldo.neuralyzer.ui.theme.NeuralyzerTheme
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -33,6 +37,10 @@ fun ColorPicker(
     onColorSelected: (Color) -> Unit
 ) {
     var selectedColor by remember { mutableStateOf(initialColor) }
+    LaunchedEffect(initialColor) {
+        selectedColor = initialColor
+    }
+
     val colorWheelBrush = Brush.sweepGradient(
         colors = listOf(
             Color.Red,
@@ -51,11 +59,11 @@ fun ColorPicker(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
-                        val newColor = colorForPosition(offset, size2.center, size2.minDimension / 2)
+                        val newColor = colorForPosition(offset, size2.center)
                         selectedColor = newColor
                     },
                     onDrag = { change, _ ->
-                        val newColor = colorForPosition(change.position, size2.center, size2.minDimension / 2)
+                        val newColor = colorForPosition(change.position, size2.center)
                         selectedColor = newColor
                         change.consume()
                     },
@@ -84,8 +92,9 @@ fun ColorPicker(
         val hsv = FloatArray(3)
         AndroidColor.colorToHSV(selectedColor.toArgb(), hsv)
         val angle = Math.toRadians(hsv[0].toDouble()).toFloat()
-        val selectorX = center.x + cos(angle) * (radius - strokeWidth / 2)
-        val selectorY = center.y + sin(angle) * (radius - strokeWidth / 2)
+        val selectorRadius = radius - strokeWidth / 2
+        val selectorX = center.x + cos(angle) * selectorRadius
+        val selectorY = center.y - sin(angle) * selectorRadius
 
         drawPoints(
             points = listOf(Offset(selectorX, selectorY)),
@@ -97,8 +106,24 @@ fun ColorPicker(
     }
 }
 
-private fun colorForPosition(position: Offset, center: Offset, radius: Float): Color {
-    val angle = atan2(position.y - center.y, position.x - center.x)
+private fun colorForPosition(position: Offset, center: Offset): Color {
+    val y = -(position.y - center.y)
+    val x = position.x - center.x
+    val angle = atan2(y, x)
+
     val hue = (Math.toDegrees(angle.toDouble()).toFloat() + 360) % 360
     return Color.hsv(hue, 1f, 1f)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ColorPickerPreview() {
+    NeuralyzerTheme {
+        ColorPicker(
+            modifier = Modifier.size(400.dp),
+            initialColor = Color.Magenta,
+            onColorSelected = {}
+        )
+    }
+
 }

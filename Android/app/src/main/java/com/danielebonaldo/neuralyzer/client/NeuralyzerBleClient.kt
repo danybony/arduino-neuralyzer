@@ -157,14 +157,20 @@ class NeuralyzerBleClient(private val context: Context) {
         }
     }
 
-    /**
-     * Read LED current color
-     */
     @SuppressLint("MissingPermission")
     fun readLEDColor(): Boolean? {
         val service = mBluetoothGatt?.getService(NeuralyzerLedUUID.NeuralyzerLightService.uuid)
         val characteristic =
             service?.getCharacteristic(NeuralyzerLedUUID.NeuralyzerLightService.LEDColor.uuid)
+
+        return mBluetoothGatt?.readCharacteristic(characteristic)
+    }
+
+    @SuppressLint("MissingPermission")
+    fun readLEDIntensity(): Boolean? {
+        val service = mBluetoothGatt?.getService(NeuralyzerLedUUID.NeuralyzerLightService.uuid)
+        val characteristic =
+            service?.getCharacteristic(NeuralyzerLedUUID.NeuralyzerLightService.LEDIntensity.uuid)
 
         return mBluetoothGatt?.readCharacteristic(characteristic)
     }
@@ -212,6 +218,7 @@ class NeuralyzerBleClient(private val context: Context) {
             Log.i(TAG, "onServicesDiscovered: " + gatt?.device?.address)
             localScopeStatus.launch {
                 _deviceConnectionStatus.emit(SDeviceStatus.READY)
+                readLEDColor()
             }
         }
 
@@ -238,10 +245,10 @@ class NeuralyzerBleClient(private val context: Context) {
                     val green: UByte = characteristic.value[1].toUByte()
                     val blue: UByte = characteristic.value[2].toUByte()
                     val color = Color.rgb(red.toInt(), green.toInt(), blue.toInt())
-
                     localScopeStatus.launch {
                         _ledColor.emit(color)
                     }
+                    readLEDIntensity()
                 }
             }
         }
