@@ -3,6 +3,12 @@ A Men in Black Neuralyzer made with Arduino and controlled by an Android app.
 
 Presented at DevFest Pescara 2025.
 
+
+
+https://github.com/user-attachments/assets/2ab9053a-5b03-4355-8828-ae3a430f30dd
+
+
+
 ## 3D printing
 The neuralyzer can be easily 3d printed. All the related info are in [the dedicated document](3D_model/README.md).
 
