@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -109,7 +110,7 @@ fun ScanScreen(
 }
 
 @Composable
-fun DevicePickerItem(macAddress: String, rssi: Int, name: String, onSelect: (String) -> Unit) {
+private fun DevicePickerItem(macAddress: String, rssi: Int, name: String, onSelect: (String) -> Unit) {
     Card(Modifier.clickable {
         onSelect(macAddress)
     }) {
@@ -119,23 +120,28 @@ fun DevicePickerItem(macAddress: String, rssi: Int, name: String, onSelect: (Str
                 style = TextStyle(
                     fontSize = 20.sp,
                 ),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
             )
-            Text(text = stringResource(R.string.rssi_format,rssi), modifier = Modifier.padding(start = 8.dp))
+            Text(
+                text = stringResource(R.string.rssi_format, rssi),
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
 
 @Composable
-fun ScanStatusText(scanStatus: ScanStatus?) {
+private fun ScanStatusText(scanStatus: ScanStatus?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = "Scan Status: ${scanStatus.toString()}",
             modifier = Modifier
                 .padding(16.dp),
-            color = Color.White
+            color = MaterialTheme.colorScheme.secondary
         )
         if (scanStatus == ScanStatus.START) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp))
@@ -144,10 +150,10 @@ fun ScanStatusText(scanStatus: ScanStatus?) {
 }
 
 @Composable
-fun ProgressScan(value: Float, colorState: Color) {
+private fun ProgressScan(value: Float, colorState: Color) {
     LinearProgressIndicator(
         modifier = Modifier.fillMaxWidth(),
         color = colorState,
-        progress = value
+        progress = { value }
     )
 }
