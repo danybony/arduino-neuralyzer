@@ -22,5 +22,7 @@ The neuralyzer can be easily 3d printed. All the related info are in [the dedica
 - Modulino Pixels https://store.arduino.cc/products/modulino-pixels
 
 - Modulino Buttons https://store.arduino.cc/products/modulino-buttons
+  
+- 9V PP3 battery 
 
-- 9V battery connector https://amzn.to/47Poghs 
+- 9V PP3 battery connector https://amzn.to/47Poghs 
