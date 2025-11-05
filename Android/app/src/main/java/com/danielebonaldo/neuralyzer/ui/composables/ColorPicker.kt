@@ -2,6 +2,8 @@ package com.danielebonaldo.neuralyzer.ui.composables
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -55,7 +57,8 @@ fun ColorPicker(
     var size2 by remember { mutableStateOf(Size.Zero) }
     Canvas(
         modifier = modifier
-            .fillMaxWidth()
+            .aspectRatio(1f)
+            .fillMaxSize()
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
@@ -80,13 +83,6 @@ fun ColorPicker(
             brush = colorWheelBrush,
             radius = radius - strokeWidth / 2,
             style = Stroke(width = strokeWidth)
-        )
-
-
-        drawCircle(
-            color = selectedColor,
-            radius = radius / 2,
-            style = Fill
         )
 
         val hsv = FloatArray(3)

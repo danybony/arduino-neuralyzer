@@ -29,5 +29,9 @@ object NeuralyzerLedUUID {
             override val description: String = "Led Active Status"
         }
     }
+
+    object ClientCharacteristicConfig {
+        val uuid: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+    }
 }
 

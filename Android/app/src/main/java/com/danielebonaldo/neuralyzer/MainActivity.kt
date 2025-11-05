@@ -117,24 +117,18 @@ class MainActivity : ComponentActivity() {
                                 val viewModel: NeuralyzerClientViewModel = viewModel()
                                 val deviceState by viewModel.bleDeviceStatus.collectAsState()
                                 val currentRGB by viewModel.rgbValue.collectAsState()
-                                Log.d("Main", "currentRGB: $currentRGB")
+                                val currentIntensity by viewModel.intensity.collectAsState()
+                                val currentActiveState by viewModel.activeState.collectAsState()
 
                                 val status = DeviceUiState(
                                     color = currentRGB.value,
-                                    intensity = Intensity.MEDIUM,
+                                    intensity = Intensity.fromInt(currentIntensity.value),
+                                    activeState = currentActiveState,
                                     deviceConnectionStatus = deviceState,
                                 )
 
                                 val localContext = LocalContext.current
 
-                                LaunchedEffect(currentRGB) {
-                                    if (deviceState == NeuralyzerBleClient.SDeviceStatus.READY)
-                                        Toast.makeText(
-                                            localContext,
-                                            "currentRGB: R ${currentRGB.value.toArgb().red}, G ${currentRGB.value.toArgb().green}, B ${currentRGB.value.toArgb().blue}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                }
 
                                 DeviceScreen(
                                     deviceStatus = status,

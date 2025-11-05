@@ -6,6 +6,7 @@ import com.danielebonaldo.neuralyzer.client.NeuralyzerBleClient
 data class DeviceUiState(
     val color: Color,
     val intensity: Intensity,
+    val activeState: Boolean,
     val deviceConnectionStatus: NeuralyzerBleClient.SDeviceStatus
 )
 

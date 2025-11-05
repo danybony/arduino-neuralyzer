@@ -22,6 +22,7 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
     val bleDeviceStatus = bleClient.deviceConnectionStatus
     val rgbValue = MutableStateFlow(TimedValue(Color(0, 0, 0), Instant.now()))
     val intensity = MutableStateFlow(TimedValue(1, Instant.now()))
+    val activeState = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -33,6 +34,7 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
                 rgbValue.value = TimedValue(Color(color.toArgb().red, color.toArgb().green, color.toArgb().blue))
             }
         }
+
         viewModelScope.launch {
             bleClient.ledIntensity.collect {
                 Log.i(TAG, "LED Effect: $it")
@@ -40,6 +42,12 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
+        viewModelScope.launch {
+            bleClient.ledActive.collect {
+                Log.i(TAG, "LED Active status: $it")
+                activeState.value = it
+            }
+        }
     }
 
     fun connect(macAddress: String) {
@@ -52,6 +60,7 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
 
     fun setLEDColor(red: Int, green: Int, blue: Int) {
         bleClient.setLEDColor(red, green, blue)
+        rgbValue.value = TimedValue(Color(red, green, blue))
     }
 
     fun readLEDColor() {
@@ -62,6 +71,7 @@ class NeuralyzerClientViewModel(application: Application) : AndroidViewModel(app
         bleClient.setLEDIntensity(intensity).let {
             Log.d(TAG, "intensity set to $intensity. Result: $it")
         }
+        this.intensity.value = TimedValue(intensity)
     }
 
     override fun onCleared() {

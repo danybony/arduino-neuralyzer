@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothStatusCodes
 import android.content.Context
@@ -43,6 +44,9 @@ class NeuralyzerBleClient(private val context: Context) {
 
     private val _ledColor = MutableSharedFlow<Int>()
     val ledColor = _ledColor as SharedFlow<Int>
+
+    private val _ledActive = MutableSharedFlow<Boolean>()
+    val ledActive = _ledActive as SharedFlow<Boolean>
 
     private lateinit var mMacAddress: String
 
@@ -218,8 +222,21 @@ class NeuralyzerBleClient(private val context: Context) {
             Log.i(TAG, "onServicesDiscovered: " + gatt?.device?.address)
             localScopeStatus.launch {
                 _deviceConnectionStatus.emit(SDeviceStatus.READY)
+                enableNotifications(gatt)
                 readLEDColor()
             }
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun enableNotifications(gatt: BluetoothGatt?) {
+            val service = gatt?.getService(NeuralyzerLedUUID.NeuralyzerLightService.uuid)
+            val characteristic = service?.getCharacteristic(NeuralyzerLedUUID.NeuralyzerLightService.LEDActiveStatus.uuid) ?: return
+
+            gatt.setCharacteristicNotification(characteristic, true)
+
+            val descriptor = characteristic.getDescriptor(NeuralyzerLedUUID.ClientCharacteristicConfig.uuid)
+            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            gatt.writeDescriptor(descriptor)
         }
 
         override fun onCharacteristicRead(
@@ -269,6 +286,16 @@ class NeuralyzerBleClient(private val context: Context) {
         ) {
             super.onCharacteristicChanged(gatt, characteristic)
             Log.i(TAG, "onCharacteristicChanged: ${characteristic?.uuid}")
+
+            when (characteristic?.uuid) {
+                NeuralyzerLedUUID.NeuralyzerLightService.LEDActiveStatus.uuid -> {
+                    val status = characteristic.value[0].toInt()
+                    Log.d(TAG, "LED Active Status changed to: $status")
+                    localScopeStatus.launch {
+                        _ledActive.emit(status == 1)
+                    }
+                }
+            }
         }
 
         @SuppressLint("MissingPermission")
