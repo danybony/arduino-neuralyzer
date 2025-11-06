@@ -2,8 +2,6 @@ package com.danielebonaldo.neuralyzer
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,13 +14,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -31,7 +27,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.danielebonaldo.neuralyzer.client.NeuralyzerBleClient
 import com.danielebonaldo.neuralyzer.client.NeuralyzerClientViewModel
 import com.danielebonaldo.neuralyzer.scanner.ScannerViewModel
 import com.danielebonaldo.neuralyzer.ui.DeviceScreen
@@ -126,9 +121,6 @@ class MainActivity : ComponentActivity() {
                                     activeState = currentActiveState,
                                     deviceConnectionStatus = deviceState,
                                 )
-
-                                val localContext = LocalContext.current
-
 
                                 DeviceScreen(
                                     deviceStatus = status,

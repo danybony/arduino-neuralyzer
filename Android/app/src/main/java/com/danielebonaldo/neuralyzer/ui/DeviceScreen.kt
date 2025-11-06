@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +29,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
 import com.danielebonaldo.neuralyzer.R
 import com.danielebonaldo.neuralyzer.client.NeuralyzerBleClient
 import com.danielebonaldo.neuralyzer.ui.composables.ColorPicker
@@ -43,19 +46,102 @@ fun DeviceScreen(
     onDisconnect: () -> Unit = {},
     onIntensitySelected: (Int) -> Unit,
     onColorSelected: (Color) -> Unit,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 ) {
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(32.dp)
-    ) {
-        ConnectionRow(
+    val screenModifier = modifier
+        .fillMaxSize()
+        .padding(32.dp)
+    if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
+        LandscapeDeviceScreen(
+            deviceStatus = deviceStatus,
+            modifier = screenModifier,
+            onConnect = onConnect,
+            onDisconnect = onDisconnect,
+            onIntensitySelected = onIntensitySelected,
+            onColorSelected = onColorSelected
+        )
+    } else {
+        PortraitDeviceScreen(
+            deviceStatus = deviceStatus,
+            modifier = screenModifier,
+            onConnect = onConnect,
+            onDisconnect = onDisconnect,
+            onIntensitySelected = onIntensitySelected,
+            onColorSelected = onColorSelected
+        )
+    }
+}
+
+@Composable
+fun LandscapeDeviceScreen(
+    deviceStatus: DeviceUiState,
+    modifier: Modifier = Modifier,
+    onConnect: () -> Unit = {},
+    onDisconnect: () -> Unit = {},
+    onIntensitySelected: (Int) -> Unit,
+    onColorSelected: (Color) -> Unit,
+) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        ConnectionControl(
             deviceConnectionStatus = deviceStatus.deviceConnectionStatus,
+            asRow = false,
             onConnect = onConnect,
             onDisconnect = onDisconnect
         )
+        Spacer(Modifier.width(16.dp))
+        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                LedStatus(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .align(Alignment.Center)
+                        .padding(32.dp),
+                    intensity = deviceStatus.intensity,
+                    color = deviceStatus.color,
+                    active = deviceStatus.activeState
+                )
+                ColorPicker(
+                    modifier = Modifier.fillMaxSize(),
+                    initialColor = deviceStatus.color,
+                    onColorSelected = onColorSelected
+                )
+            }
+
+            IntensitySlider(
+                modifier = Modifier.fillMaxWidth(0.4f),
+                intensity = deviceStatus.intensity,
+                onIntensitySelected = onIntensitySelected
+            )
+        }
+    }
+}
+
+@Composable
+fun PortraitDeviceScreen(
+    deviceStatus: DeviceUiState,
+    modifier: Modifier = Modifier,
+    onConnect: () -> Unit = {},
+    onDisconnect: () -> Unit = {},
+    onIntensitySelected: (Int) -> Unit,
+    onColorSelected: (Color) -> Unit,
+) {
+    Column(modifier) {
+        ConnectionControl(
+            deviceConnectionStatus = deviceStatus.deviceConnectionStatus,
+            asRow = true,
+            onConnect = onConnect,
+            onDisconnect = onDisconnect
+        )
+        Spacer(Modifier.height(16.dp))
         Box(
             modifier = Modifier
+                .aspectRatio(1f)
                 .fillMaxWidth()
                 .weight(1f)
         ) {
@@ -82,10 +168,11 @@ fun DeviceScreen(
             onIntensitySelected = onIntensitySelected
         )
     }
+
 }
 
 @Composable
-fun LedStatus(intensity: Intensity, color: Color, active: Boolean, modifier: Modifier) {
+private fun LedStatus(intensity: Intensity, color: Color, active: Boolean, modifier: Modifier) {
     val activeLeds = if (!active) {
         0
     } else {
@@ -97,7 +184,11 @@ fun LedStatus(intensity: Intensity, color: Color, active: Boolean, modifier: Mod
     }
     val disabledColor = Color.DarkGray
 
-    Canvas(modifier.fillMaxSize().clip(CircleShape)) {
+    Canvas(
+        modifier
+            .fillMaxSize()
+            .clip(CircleShape)
+    ) {
 
         val neuralyzerColor = Color.Gray
         val neuralyzerWidth = (size.width / 3f).toDp()
@@ -145,7 +236,7 @@ fun LedStatus(intensity: Intensity, color: Color, active: Boolean, modifier: Mod
                 radius = ledDotWidth,
                 center = dotCenter
             )
-            if (isActive){
+            if (isActive) {
                 val lightRadius = ledDotWidth * 10
                 drawCircle(
                     brush = Brush.radialGradient(
@@ -165,32 +256,50 @@ fun LedStatus(intensity: Intensity, color: Color, active: Boolean, modifier: Mod
 }
 
 @Composable
-private fun ConnectionRow(
+private fun ConnectionControl(
     deviceConnectionStatus: NeuralyzerBleClient.SDeviceStatus,
+    asRow: Boolean,
     onConnect: () -> Unit,
     onDisconnect: () -> Unit
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-    ) {
+    val button: @Composable (Modifier) -> Unit = { modifier ->
         when (deviceConnectionStatus) {
             is NeuralyzerBleClient.SDeviceStatus.DISCONNECTED,
             is NeuralyzerBleClient.SDeviceStatus.UNKNOWN -> Button(
                 onClick = onConnect,
-                modifier = Modifier.weight(1f)
+                modifier = modifier
             ) {
                 Text(stringResource(R.string.connect))
             }
 
             else -> Button(
                 onClick = onDisconnect,
-                modifier = Modifier.weight(1f)
+                modifier = modifier
             ) {
                 Text(stringResource(R.string.disconnect))
             }
         }
+    }
+
+    if (asRow) {
+        ConnectionRow(deviceConnectionStatus, button)
+    } else {
+        ConnectionColumn(deviceConnectionStatus, button)
+    }
+}
+
+@Composable
+private fun ConnectionRow(
+    deviceConnectionStatus: NeuralyzerBleClient.SDeviceStatus,
+    button: @Composable (Modifier) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(IntrinsicSize.Min),
+    ) {
+        button(Modifier.weight(1f))
 
         Column(
             modifier = Modifier
@@ -201,9 +310,40 @@ private fun ConnectionRow(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(start = 20.dp, end = 20.dp)
+                    .padding(start = 32.dp)
                     .background(deviceConnectionStatus.statusColor(), shape = CircleShape)
-                    .requiredSize(48.dp, 24.dp)
+                    .requiredSize(64.dp, 24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConnectionColumn(
+    deviceConnectionStatus: NeuralyzerBleClient.SDeviceStatus,
+    button: @Composable (Modifier) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxHeight()
+            .padding(vertical = 16.dp, horizontal = 64.dp)
+            .height(IntrinsicSize.Min),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        button(Modifier.weight(1f))
+
+        Column(
+            modifier = Modifier
+                .weight(0.5f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 32.dp)
+                    .background(deviceConnectionStatus.statusColor(), shape = CircleShape)
+                    .requiredSize(24.dp, 64.dp)
             )
         }
     }
@@ -222,11 +362,11 @@ private fun NeuralyzerBleClient.SDeviceStatus.statusColor(): Color {
 @Composable
 private fun DeviceScreenPreview() {
     NeuralyzerTheme {
-        Box(Modifier.background(MaterialTheme.colorScheme.background)){
+        Box(Modifier.background(MaterialTheme.colorScheme.background)) {
             DeviceScreen(
                 deviceStatus = DeviceUiState(
                     color = Color.Cyan,
-                    intensity = Intensity.HIGH,
+                    intensity = Intensity.MEDIUM,
                     activeState = true,
                     deviceConnectionStatus = NeuralyzerBleClient.SDeviceStatus.CONNECTED
                 ),
