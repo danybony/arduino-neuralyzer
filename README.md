@@ -1,7 +1,7 @@
 # Arduino-Android Neuralyzer
 A Men in Black Neuralyzer made with Arduino and controlled by an Android app.
 
-Presented at DevFest Pescara 2025.
+Presented at [DevFest Pescara 2025](https://devfest.gdgpescara.it/it/).
 
 
 
@@ -26,3 +26,7 @@ The neuralyzer can be easily 3d printed. All the related info are in [the dedica
 - 9V PP3 battery 
 
 - 9V PP3 battery connector https://amzn.to/47Poghs 
+
+## Slide Deck
+
+[Presentation here](https://docs.google.com/presentation/d/1N28yC9nN8kCC65EGHAueS5vN4FuV5YYNEZBnSAGI6ws/edit?usp=sharing)
